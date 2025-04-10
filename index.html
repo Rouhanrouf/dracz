@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Side Hustle Advisor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #3b82f6;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .chat-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            height: calc(100vh - 250px);
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .user-message {
+            background-color: #3b82f6;
+            color: white;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #userInput:focus {
+            border-color: #3b82f6;
+        }
+
+        .send-button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .send-button:hover {
+            background-color: #2563eb;
+        }
+
+        .recommendation-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background-color: #e5e7eb;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 4px;
+            font-size: 0.875rem;
+        }
+
+        .platform-tag {
+            display: inline-block;
+            background-color: #dbeafe;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 4px;
+            font-size: 0.875rem;
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .difficulty-beginner {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .difficulty-intermediate {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .difficulty-advanced {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: #f3f4f6;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #6b7280;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .bot-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .bot-header i {
+            color: #3b82f6;
+            margin-right: 8px;
+        }
+
+        .bot-header span {
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Side Hustle Advisor</h1>
+            <p>Tell me about your skills and I'll suggest the perfect side hustle for you!</p>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="message bot-message">
+                <div class="bot-header">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Advisor</span>
+                </div>
+                Hello! I'm your AI Side Hustle Advisor. Tell me about your skills and interests, and I'll suggest some great side hustle opportunities for you!
+                <div style="margin-top: 8px; font-size: 0.9rem; color: #6b7280;">
+                    Try saying something like: "I know programming and design" or "I'm good at writing and marketing"
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="userInput" placeholder="Type your skills and interests here...">
+            <button class="send-button" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+                Send
+            </button>
+        </div>
+    </div>
+    <footer class="footer">
+        Made with ❤️ by <a href="#" target="_blank">Rouhan</a>
+    </footer>
+
+    <script>
+        // Side hustle database
+        const SIDE_HUSTLES = {
+            "programming": [
+                {
+                    "title": "Freelance Web Development",
+                    "description": "Build websites for clients using modern technologies",
+                    "earning_potential": "$30-100/hour",
+                    "skills_needed": ["HTML", "CSS", "JavaScript", "React", "Node.js"],
+                    "platforms": ["Upwork", "Freelancer", "Fiverr"],
+                    "difficulty": "Intermediate"
+                },
+                {
+                    "title": "Mobile App Development",
+                    "description": "Create mobile applications for iOS or Android",
+                    "earning_potential": "$50-150/hour",
+                    "skills_needed": ["Swift", "Kotlin", "React Native", "Flutter"],
+                    "platforms": ["Upwork", "Toptal", "Freelancer"],
+                    "difficulty": "Advanced"
+                }
+            ],
+            "writing": [
+                {
+                    "title": "Content Writing",
+                    "description": "Create engaging blog posts and articles",
+                    "earning_potential": "$20-50/hour",
+                    "skills_needed": ["Writing", "Research", "SEO"],
+                    "platforms": ["Upwork", "Medium", "Contently"],
+                    "difficulty": "Beginner"
+                },
+                {
+                    "title": "Technical Writing",
+                    "description": "Write technical documentation and guides",
+                    "earning_potential": "$40-100/hour",
+                    "skills_needed": ["Technical Knowledge", "Writing", "Documentation"],
+                    "platforms": ["Upwork", "GitHub", "Documentation Sites"],
+                    "difficulty": "Intermediate"
+                }
+            ],
+            "design": [
+                {
+                    "title": "Graphic Design",
+                    "description": "Create logos, branding materials, and graphics",
+                    "earning_potential": "$25-75/hour",
+                    "skills_needed": ["Adobe Photoshop", "Illustrator", "Design Principles"],
+                    "platforms": ["99designs", "Dribbble", "Upwork"],
+                    "difficulty": "Intermediate"
+                },
+                {
+                    "title": "UI/UX Design",
+                    "description": "Design user interfaces and experiences",
+                    "earning_potential": "$35-120/hour",
+                    "skills_needed": ["Figma", "Adobe XD", "User Research"],
+                    "platforms": ["Upwork", "Behance", "Dribbble"],
+                    "difficulty": "Advanced"
+                }
+            ],
+            "marketing": [
+                {
+                    "title": "Social Media Management",
+                    "description": "Manage and grow social media accounts",
+                    "earning_potential": "$25-80/hour",
+                    "skills_needed": ["Social Media", "Content Creation", "Analytics"],
+                    "platforms": ["Upwork", "LinkedIn", "Local Businesses"],
+                    "difficulty": "Beginner"
+                },
+                {
+                    "title": "SEO Consulting",
+                    "description": "Optimize websites for search engines",
+                    "earning_potential": "$40-150/hour",
+                    "skills_needed": ["SEO", "Analytics", "Content Strategy"],
+                    "platforms": ["Upwork", "Local Businesses", "Agencies"],
+                    "difficulty": "Intermediate"
+                }
+            ]
+        };
+
+        function getDifficultyClass(difficulty) {
+            switch(difficulty.toLowerCase()) {
+                case 'beginner': return 'difficulty-beginner';
+                case 'intermediate': return 'difficulty-intermediate';
+                case 'advanced': return 'difficulty-advanced';
+                default: return '';
+            }
+        }
+
+        function analyzeSkills(text) {
+            const words = text.toLowerCase().split(' ');
+            const matchedCategories = [];
+            
+            for (const category in SIDE_HUSTLES) {
+                if (words.some(word => category.includes(word))) {
+                    matchedCategories.push(category);
+                }
+            }
+            
+            return matchedCategories;
+        }
+
+        function addMessage(content, sender) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            if (sender === 'bot') {
+                messageDiv.innerHTML = `
+                    <div class="bot-header">
+                        <i class="fas fa-robot"></i>
+                        <span>AI Advisor</span>
+                    </div>
+                    ${content}
+                `;
+            } else {
+                messageDiv.innerHTML = content;
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                // Add user message to chat
+                addMessage(message, 'user');
+                input.value = '';
+                
+                // Show typing indicator
+                const chatContainer = document.getElementById('chatContainer');
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.innerHTML = `
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                `;
+                chatContainer.appendChild(typingDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // Simulate processing delay
+                setTimeout(() => {
+                    // Remove typing indicator
+                    typingDiv.remove();
+                    
+                    // Analyze skills and get recommendations
+                    const matchedCategories = analyzeSkills(message);
+                    
+                    if (matchedCategories.length === 0) {
+                        addMessage(
+                            "I couldn't identify specific skills in your message. Could you please describe your skills and interests in more detail? For example: 'I know programming and design' or 'I'm good at writing and marketing'",
+                            'bot'
+                        );
+                    } else {
+                        addMessage("Based on your skills, here are some potential side hustle opportunities:", 'bot');
+                        
+                        matchedCategories.forEach(category => {
+                            SIDE_HUSTLES[category].forEach(rec => {
+                                const recommendation = `
+                                    <div class="recommendation-card">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                            <h3 style="font-weight: bold; font-size: 1.125rem;">${rec.title}</h3>
+                                            <span class="${getDifficultyClass(rec.difficulty)}">${rec.difficulty}</span>
+                                        </div>
+                                        <p style="color: #6b7280; margin-bottom: 8px;">${rec.description}</p>
+                                        <div style="margin-bottom: 8px;">
+                                            <span style="font-weight: 600;">Skills Needed:</span>
+                                            ${rec.skills_needed.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                                        </div>
+                                        <div style="margin-bottom: 8px;">
+                                            <span style="font-weight: 600;">Platforms:</span>
+                                            ${rec.platforms.map(platform => `<span class="platform-tag">${platform}</span>`).join('')}
+                                        </div>
+                                        <p style="color: #10b981; font-weight: 600;">${rec.earning_potential}</p>
+                                    </div>
+                                `;
+                                addMessage(recommendation, 'bot');
+                            });
+                        });
+                    }
+                }, 1000); // 1 second delay to simulate processing
+            }
+        }
+
+        // Allow sending message with Enter key
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html> 
